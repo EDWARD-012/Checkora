@@ -46,6 +46,7 @@ class ChessGame:
         self.black_time = 10 * 60
         self.last_ts = time.time()
         self.paused = False
+        self.mode = 'pvp'  # NAYA: Default mode 'pvp' (Player vs Player) hai
 
     def serialize_board(self):
         """Flatten the 2-D board into a 64-char string for the C++ engine."""
@@ -63,7 +64,8 @@ class ChessGame:
             'white_time': self.white_time,
             'black_time': self.black_time,
             'last_ts': self.last_ts,
-            'paused': self.paused
+            'paused': self.paused,
+            'mode': self.mode  # NAYA
         }
 
     @classmethod
@@ -78,6 +80,7 @@ class ChessGame:
         game.white_time = data['white_time']
         game.black_time = data['black_time']
         game.last_ts = data['last_ts']
+        game.mode = data.get('mode', 'pvp')  # NAYA
 
         cache_data = data.get('valid_moves_cache', {})
         game.valid_moves_cache = {}

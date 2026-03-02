@@ -80,15 +80,22 @@ def valid_moves(request):
 
 @require_POST
 def new_game(request):
-    """Reset the game to the initial position."""
+    """Reset the game to the initial position with selected mode."""
+    data = json.loads(request.body or '{}')
+    mode = data.get('mode', 'pvp')  # Frontend se mode aayega
+    
     game = ChessGame()
+    game.mode = mode
+    
     request.session['game'] = game.to_dict()
     request.session.modified = True
+    
     return JsonResponse({
         'board': game.board,
         'current_turn': game.current_turn,
         'move_history': [],
         'captured_pieces': {'white': [], 'black': []},
+        'mode': game.mode
     })
 
 @require_GET
@@ -142,6 +149,7 @@ def get_state(request):
         'paused': game.paused,
         'move_history': game.move_history,
         'captured_pieces': game.captured,
+        'mode': game.mode if 'game' in locals() else game_data.get('mode', 'pvp'),
     })
 
 @csrf_exempt
