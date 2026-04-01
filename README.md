@@ -20,12 +20,14 @@ Built on Django with a high-performance C++ engine and a Python fallback for max
 
 ## Features
 
-- **AI Opponent** — Minimax search with alpha-beta pruning for challenging gameplay
-- **Hybrid Engine** — C++ binary for maximum speed with an automatic Python fallback
-- **Full Move Validation** — Legal moves enforced for all pieces including castling, en passant, and promotion
-- **Game Timer** — Per-player countdown clocks with pause support
-- **REST API** — Clean JSON endpoints powering a decoupled frontend
-- **PvP & PvE Modes** — Play against a friend or challenge the AI
+| Feature | Description |
+|---------|-------------|
+| AI Opponent | Minimax search with alpha-beta pruning for challenging gameplay |
+| Hybrid Engine | C++ binary for maximum speed with an automatic Python fallback |
+| Full Move Validation | Legal moves enforced for all pieces including castling, en passant, and promotion |
+| Game Timer | Per-player countdown clocks with pause support |
+| REST API | Clean JSON endpoints powering a decoupled frontend |
+| PvP & PvE Modes | Play against a friend or challenge the AI |
 
 ---
 
