@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify your Email | Checkora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'game/css/theme.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'game/css/auth.css' %}?v=15">
+    <link rel="icon" type="image/jpeg" href="{% static 'game/favicon.jpeg' %}">
+    <style>
+        .otp-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .otp-input {
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.5rem;
+            letter-spacing: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #0f0f1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #f0c040;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: #f0c040;
+            box-shadow: 0 0 0 2px rgba(240, 192, 64, 0.2);
+        }
+        /* Hide number arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .link-button {
+            background: none;
+            border: none;
+            color: #f0c040;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+            display: inline;
+        }
+        .link-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'game/css/cursor.css' %}">
+</head>
+<body>
+    <div class="cursor"></div>
+    {% include 'game/includes/navbar.html' %}
+
+    <div class="header header--with-navbar">
+        <h1>Verify your Email</h1>
+        <p>We've sent a 6-digit code to {{ user_email|default:"your email address" }}.</p>
+    </div>
+
+    <div class="auth-card">
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% include 'game/includes/messages.html' %}
+            
+            <div class="form-group">
+                <label for="otp">Enter 6-Digit OTP</label>
+                <div class="otp-container">
+                    <input type="text" id="otp" name="otp" class="otp-input" maxlength="6" pattern="\d{6}" placeholder="000000" autocomplete="off" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-gold">Verify & Activate</button>
+        </form>
+        
+        <div class="auth-footer">
+            Didn't receive the code? 
+            <form id="resend-form" method="POST" action="{% url 'resend_otp' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" id="resend-link" class="link-button">Try again</button>
+            </form>
+            <span id="timer" data-remaining-time="{{ remaining_time|default:0 }}"></span>
+        </div>
+    </div>
+<script>
+    const resendLink = document.getElementById("resend-link");
+    const timer = document.getElementById("timer");
+    let remainingTime = parseInt(timer.dataset.remainingTime || "0", 10);
+
+    function updateTimer() {
+        if (remainingTime > 0) {
+            resendLink.disabled = true;
+            resendLink.style.pointerEvents = "none";
+            resendLink.style.opacity = "0.5";
+            timer.textContent = ` (${remainingTime}s)`;
+
+            remainingTime--;
+
+            setTimeout(updateTimer, 1000);
+        } else {
+            resendLink.disabled = false;
+            resendLink.style.pointerEvents = "auto";
+            resendLink.style.opacity = "1";
+            timer.textContent = "";
+        }
+    }
+    updateTimer();
+</script>
+<script src="{% static 'game/js/theme.js' %}?v=1"></script>
+<script src="{% static 'game/js/cursor.js' %}"></script>
+
+</body>
+</html>

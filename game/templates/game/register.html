@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | Checkora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'game/css/theme.css' %}?v=1" />
+    <link rel="stylesheet" href="{% static 'game/css/auth.css' %}?v=15" />
+    <link
+      rel="icon"
+      type="image/jpeg"
+      href="{% static 'game/favicon.jpeg' %}"
+    />
+      <link rel="stylesheet" href="{% static 'game/css/toast.css' %}">
+      <link rel="stylesheet" href="{% static 'game/css/cursor.css' %}">
+</head>
+<body>
+    <div class="cursor"></div>
+    {% include 'game/includes/navbar.html' %}
+
+    <main class="auth-layout">
+      <a href="{% url 'landing' %}" class="auth-home-link" aria-label="Back to home">
+          <span aria-hidden="true" class="auth-home-link__arrow">←</span>
+          <span>Back to Home</span>
+      </a>
+
+      <div class="header header--with-navbar">
+        <p>Create an account to track your stats</p>
+      </div>
+
+      <div class="auth-card">
+          <form method="POST">
+              {% csrf_token %}
+
+              {% include 'game/includes/messages.html' %}
+
+              {% if form.non_field_errors %}
+                  {{ form.non_field_errors }}
+              {% endif %}
+              
+              {% for field in form %}
+                  <div class="form-group">
+                      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      {{ field }}
+                      {% if field.help_text %}
+                          <span class="helptext">{{ field.help_text}}</span>
+                      {% endif %}
+                      {% if field.errors %}
+                          {{ field.errors }}
+                      {% endif %}
+                  </div>
+              {% endfor %}
+              
+              <button type="submit" class="btn btn-gold">Create Account</button>
+          </form>
+          
+          <div class="auth-footer">
+              Already have an account? <a href="{% url 'login' %}">Sign In</a>
+          </div>
+        </div>
+    </main>
+
+    <script src="{% static 'game/js/auth.js' %}?v=7"></script>
+      <script src="{% static 'game/js/toast.js' %}"></script>
+    <script>
+        const usernameInput = document.querySelector('#id_username');
+        const checkUsernameUrl = "{% url 'check_username' %}";
+
+        if (usernameInput) {
+            let debounceTimer;
+            let latestVal = '';
+            const feedback = document.createElement('span');
+
+            feedback.className = 'helptext';
+            usernameInput.parentNode.appendChild(feedback);
+
+            usernameInput.addEventListener('input', () => { 
+                clearTimeout(debounceTimer);
+                const val = usernameInput.value.trim();
+                latestVal = val;  
+
+                if (!val) {
+                    feedback.textContent = '';
+                    return;
+                }
+
+                debounceTimer = setTimeout(async () => {
+                    if (val !== latestVal) return;  
+
+                    try {  
+                        const res = await fetch(
+                        `${checkUsernameUrl}?username=${encodeURIComponent(val)}`
+                        );
+
+                        if (!res.ok) throw new Error('Request failed');
+
+                        const data = await res.json();
+
+                        if (val !== latestVal) return;  
+
+                        feedback.textContent = data.available
+                        ? '✔ Username available'
+                        : '✖ Username already taken';
+
+                         feedback.style.color = data.available
+                        ? '#e5b639'
+                        : '#e57373';
+
+                    } catch (err) {
+                        feedback.textContent = '⚠ Could not check username';
+                        feedback.style.color = '#aaa';
+                    }
+                }, 400);
+            });
+        }
+    </script>
+    <script src="{% static 'game/js/theme.js' %}?v=1"></script>
+    <script src="{% static 'game/js/cursor.js' %}"></script>
+</body>
+</html>
